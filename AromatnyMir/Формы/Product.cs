@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace AromatnyMir.Формы
@@ -15,19 +8,90 @@ namespace AromatnyMir.Формы
         db dataBase = new db();
         DataTransfer dataTransfer;
 
-        // Конструктор, принимающий аргументы
         public Product(DataTransfer dataTransfer)
         {
             InitializeComponent();
             this.dataTransfer = dataTransfer;
         }
 
-        private void productBindingNavigatorSaveItem_Click(object sender, EventArgs e)
+        private void button1_Click_1(object sender, EventArgs e)
         {
-            this.Validate();
-            this.productBindingSource.EndEdit();
-            this.tableAdapterManager.UpdateAll(this.aromaMirDataSet);
+            try
+            {
+                // Получаем выбранный продукт из DataGridView с продуктами
+                DataGridViewRow selectedRow = productDataGridView.SelectedRows[0];
+
+                // Получаем необходимую информацию о продукте
+                int productId = (int)selectedRow.Cells["dataGridViewTextBoxColumn1"].Value;
+                string productName = selectedRow.Cells["dataGridViewTextBoxColumn3"].Value.ToString();
+                decimal productPrice = (decimal)selectedRow.Cells["dataGridViewTextBoxColumn5"].Value;
+
+                // Проверяем, что количество товара больше нуля
+                int quantity = (int)selectedRow.Cells["dataGridViewTextBoxColumn11"].Value;
+                if (quantity <= 0)
+                {
+                    MessageBox.Show("Недостаточно товара на складе!");
+                    return;
+                }
+
+                // Добавляем продукт в корзину DataGridView
+                cartDataGridView.Rows.Add(productId, productName, productPrice, 1);
+
+                // Уменьшаем количество товара в главной таблице
+                selectedRow.Cells["dataGridViewTextBoxColumn11"].Value = quantity - 1;
+
+                // Обновляем количество товаров в корзине и общую сумму
+                UpdateCartCount();
+                CalculateTotalAmount();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Произошла ошибка: " + ex.Message);
+            }
         }
+
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Получаем выбранный продукт из корзины DataGridView
+                DataGridViewRow selectedRow = cartDataGridView.SelectedRows[0];
+
+                // Получаем информацию о продукте в корзине
+                int productId = (int)selectedRow.Cells["ProductIdColumn"].Value;
+                string productName = selectedRow.Cells["ProductNameColumn"].Value.ToString();
+                decimal productPrice = (decimal)selectedRow.Cells["ProductPriceColumn"].Value;
+
+                // Удаляем выбранный продукт из корзины DataGridView
+                cartDataGridView.Rows.Remove(selectedRow);
+
+                // Увеличиваем количество товара в главной таблице
+                foreach (DataGridViewRow row in productDataGridView.Rows)
+                {
+                    if ((int)row.Cells["dataGridViewTextBoxColumn1"].Value == productId)
+                    {
+                        int quantity = Convert.ToInt32(row.Cells["dataGridViewTextBoxColumn11"].Value);
+                        row.Cells["dataGridViewTextBoxColumn11"].Value = quantity + 1;
+                        break;
+                    }
+                }
+
+                // Обновляем количество товаров в корзине и общую сумму
+                UpdateCartCount();
+                CalculateTotalAmount();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Произошла ошибка: " + ex.Message);
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+
+        }
+
 
         private void Product_Load(object sender, EventArgs e)
         {
@@ -35,21 +99,21 @@ namespace AromatnyMir.Формы
             UserName.Text = dataTransfer.UserLogin;
         }
 
-        private void button1_Click_1(object sender, EventArgs e)
+        private void UpdateCartCount()
         {
-            try
-            {
-                int productId = (int)productDataGridView.SelectedRows[0].Cells["dataGridViewTextBoxColumn1"].Value;
-                List<int> productList = dataTransfer.ProductIds.ToList(); // Преобразуем массив в список для удобства добавления элементов
-                productList.Add(productId); // Добавляем идентификатор товара в список
-                dataTransfer.ProductIds = productList.ToArray(); // Преобразуем список обратно в массив
+            cartCount.Text = cartDataGridView.Rows.Count.ToString();
+        }
 
-                Cart cart = new Cart(dataTransfer);
-            }
-            catch (Exception ex)
+        private void CalculateTotalAmount()
+        {
+            decimal totalAmount = 0;
+            foreach (DataGridViewRow row in cartDataGridView.Rows)
             {
-                MessageBox.Show("Произошла ошибка: " + ex.Message);
+                decimal itemPrice = (decimal)row.Cells["ProductPriceColumn"].Value;
+                int itemQuantity = (int)row.Cells["QuantityColumn"].Value;
+                totalAmount += itemPrice * itemQuantity;
             }
+            totalAmountLabel.Text = totalAmount.ToString();
         }
     }
 }

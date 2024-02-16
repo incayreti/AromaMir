@@ -12,29 +12,34 @@ namespace AromatnyMir.Формы
 {
     public partial class Cart : Form
     {
+        /*
         db dataBase = new db();
         DataTransfer dataTransfer;
 
+        // Конструктор, принимающий аргументы
         public Cart(DataTransfer dataTransfer)
         {
             InitializeComponent();
-            this.dataTransfer = dataTransfer;
+            this.dataTransfer = dataTransfer; // Установка переданного объекта dataTransfer
         }
 
         private void FillDataGridView()
         {
             dataGridView1.Rows.Clear();
 
-            foreach (int productId in dataTransfer.ProductIds)
+            if (dataTransfer.ProductIds != null) // Проверяем наличие данных перед выводом
             {
-                dataGridView1.Rows.Add(productId);
+                foreach (int productId in dataTransfer.ProductIds)
+                {
+                    dataGridView1.Rows.Add(productId);
+                }
             }
         }
+        */
 
         private void Cart_Load(object sender, EventArgs e)
         {
-            FillDataGridView();
+            //FillDataGridView();
         }
     }
-
 }
