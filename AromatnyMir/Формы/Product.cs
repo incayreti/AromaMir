@@ -160,45 +160,38 @@ namespace AromatnyMir.Формы
 
         private void CreateOrder(int pickupPointID)
         {
-            try
-            {
-                // Получаем UserID по логину
-                int userID = dataBase.GetUserIDByLogin(dataTransfer.UserLogin);
+            // Получаем UserID по логину
+            int userID = dataBase.GetUserIDByLogin(dataTransfer.UserLogin);
 
-                // Перебираем все товары в корзине и создаем заказ для каждого товара
-                foreach (DataGridViewRow row in cartDataGridView.Rows)
+            // Перебираем все товары в корзине и создаем заказ для каждого товара
+            foreach (DataGridViewRow row in cartDataGridView.Rows)
+            {
+                int productId = (int)row.Cells["ProductIdColumn"].Value;
+                int quantity = (int)row.Cells["QuantityColumn"].Value;
+                decimal productPrice = (decimal)row.Cells["ProductPriceColumn"].Value;
+
+                // Создаем соединение с базой данных
+                using (SqlConnection connection = dataBase.getConnection())
                 {
-                    int productId = (int)row.Cells["ProductIdColumn"].Value;
-                    int quantity = (int)row.Cells["QuantityColumn"].Value;
-                    decimal productPrice = (decimal)row.Cells["ProductPriceColumn"].Value;
+                    connection.Open();
 
-                    // Создаем соединение с базой данных
-                    using (SqlConnection connection = dataBase.getConnection())
-                    {
-                        connection.Open();
+                    // Создаем команду для вставки нового заказа в таблицу "Order"
+                    SqlCommand cmd = new SqlCommand("INSERT INTO [Order] (OrderStatus, ProductArticleId, OrderCount, OrderCreateDate, OrderDeliveryDate, IdPickupPoint, UserID, OrderGetCode) " +
+                                                    "VALUES (@OrderStatus, @ProductArticleId, @OrderCount, @OrderCreateDate, @OrderDeliveryDate, @IdPickupPoint, @UserID, @OrderGetCode)", connection);
 
-                        // Создаем команду для вставки нового заказа в таблицу "Order"
-                        SqlCommand cmd = new SqlCommand("INSERT INTO [Order] (OrderStatus, ProductArticleId, OrderCount, OrderCreateDate, OrderDeliveryDate, IdPickupPoint, UserID, OrderGetCode) " +
-                                                        "VALUES (@OrderStatus, @ProductArticleId, @OrderCount, @OrderCreateDate, @OrderDeliveryDate, @IdPickupPoint, @UserID, @OrderGetCode)", connection);
+                    // Задаем параметры для команды
+                    cmd.Parameters.AddWithValue("@OrderStatus", "Новый");
+                    cmd.Parameters.AddWithValue("@ProductArticleId", productId);
+                    cmd.Parameters.AddWithValue("@OrderCount", quantity);
+                    cmd.Parameters.AddWithValue("@OrderCreateDate", DateTime.Now);
+                    cmd.Parameters.AddWithValue("@OrderDeliveryDate", DateTime.Now.AddDays(5));
+                    cmd.Parameters.AddWithValue("@IdPickupPoint", pickupPointID);
+                    cmd.Parameters.AddWithValue("@UserID", userID);
+                    cmd.Parameters.AddWithValue("@OrderGetCode", GenerateOrderGetCode()); // Генерация уникального кода для заказа
 
-                        // Задаем параметры для команды
-                        cmd.Parameters.AddWithValue("@OrderStatus", "Новый");
-                        cmd.Parameters.AddWithValue("@ProductArticleId", productId);
-                        cmd.Parameters.AddWithValue("@OrderCount", quantity);
-                        cmd.Parameters.AddWithValue("@OrderCreateDate", DateTime.Now);
-                        cmd.Parameters.AddWithValue("@OrderDeliveryDate", DateTime.Now.AddDays(5));
-                        cmd.Parameters.AddWithValue("@IdPickupPoint", pickupPointID);
-                        cmd.Parameters.AddWithValue("@UserID", userID);
-                        cmd.Parameters.AddWithValue("@OrderGetCode", GenerateOrderGetCode()); // Генерация уникального кода для заказа
-
-                        // Выполняем команду
-                        cmd.ExecuteNonQuery();
-                    }
+                    // Выполняем команду
+                    cmd.ExecuteNonQuery();
                 }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Произошла ошибка при создании заказа: " + ex.Message);
             }
         }
 
