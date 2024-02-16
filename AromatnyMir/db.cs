@@ -23,5 +23,26 @@ namespace AromatnyMir
         }
 
         public SqlConnection getConnection() { return sqlConnection; }
+
+        public int GetUserIDByLogin(string userLogin)
+        {
+            int userID = 0;
+            string query = "SELECT UserID FROM [User] WHERE UserLogin = @UserLogin";
+            using (SqlConnection connection = new SqlConnection(sqlConnection.ConnectionString))
+            {
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@UserLogin", userLogin);
+                    connection.Open();
+                    object result = command.ExecuteScalar();
+                    if (result != null)
+                    {
+                        userID = Convert.ToInt32(result);
+                    }
+                }
+            }
+            return userID;
+        }
+
     }
 }

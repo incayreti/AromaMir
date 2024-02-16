@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SqlClient;
 using System.Windows.Forms;
 
 namespace AromatnyMir.Формы
@@ -89,8 +90,49 @@ namespace AromatnyMir.Формы
 
         private void button2_Click(object sender, EventArgs e)
         {
+            try
+            {
+                // Проверяем, выбран ли какой-либо пункт выдачи
+                if (comboBox1.SelectedItem == null)
+                {
+                    MessageBox.Show("Выберите пункт выдачи!");
+                    return;
+                }
 
+                // Получаем строку, выбранную в комбо боксе
+                string selectedPickupPoint = comboBox1.SelectedItem.ToString();
+
+                // Разбиваем строку на части по пробелу
+                string[] parts = selectedPickupPoint.Split(' ');
+
+                // Проверяем, что строка разбилась на три части (ID, улица, номер дома)
+                if (parts.Length != 3)
+                {
+                    MessageBox.Show("Неправильный формат строки пункта выдачи!");
+                    return;
+                }
+
+                // Получаем ID пункта выдачи
+                int pickupPointID = int.Parse(parts[0]);
+
+                // Создаем заказ
+                CreateOrder(pickupPointID);
+
+                // Очищаем корзину
+                cartDataGridView.Rows.Clear();
+
+                // Обновляем количество товаров в корзине и общую сумму
+                UpdateCartCount();
+                CalculateTotalAmount();
+
+                MessageBox.Show("Заказ успешно оформлен!");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Произошла ошибка при оформлении заказа: " + ex.Message);
+            }
         }
+
 
 
         private void Product_Load(object sender, EventArgs e)
@@ -115,5 +157,58 @@ namespace AromatnyMir.Формы
             }
             totalAmountLabel.Text = totalAmount.ToString();
         }
+
+        private void CreateOrder(int pickupPointID)
+        {
+            try
+            {
+                // Получаем UserID по логину
+                int userID = dataBase.GetUserIDByLogin(dataTransfer.UserLogin);
+
+                // Перебираем все товары в корзине и создаем заказ для каждого товара
+                foreach (DataGridViewRow row in cartDataGridView.Rows)
+                {
+                    int productId = (int)row.Cells["ProductIdColumn"].Value;
+                    int quantity = (int)row.Cells["QuantityColumn"].Value;
+                    decimal productPrice = (decimal)row.Cells["ProductPriceColumn"].Value;
+
+                    // Создаем соединение с базой данных
+                    using (SqlConnection connection = dataBase.getConnection())
+                    {
+                        connection.Open();
+
+                        // Создаем команду для вставки нового заказа в таблицу "Order"
+                        SqlCommand cmd = new SqlCommand("INSERT INTO [Order] (OrderStatus, ProductArticleId, OrderCount, OrderCreateDate, OrderDeliveryDate, IdPickupPoint, UserID, OrderGetCode) " +
+                                                        "VALUES (@OrderStatus, @ProductArticleId, @OrderCount, @OrderCreateDate, @OrderDeliveryDate, @IdPickupPoint, @UserID, @OrderGetCode)", connection);
+
+                        // Задаем параметры для команды
+                        cmd.Parameters.AddWithValue("@OrderStatus", "Новый");
+                        cmd.Parameters.AddWithValue("@ProductArticleId", productId);
+                        cmd.Parameters.AddWithValue("@OrderCount", quantity);
+                        cmd.Parameters.AddWithValue("@OrderCreateDate", DateTime.Now);
+                        cmd.Parameters.AddWithValue("@OrderDeliveryDate", DateTime.Now.AddDays(5));
+                        cmd.Parameters.AddWithValue("@IdPickupPoint", pickupPointID);
+                        cmd.Parameters.AddWithValue("@UserID", userID);
+                        cmd.Parameters.AddWithValue("@OrderGetCode", GenerateOrderGetCode()); // Генерация уникального кода для заказа
+
+                        // Выполняем команду
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Произошла ошибка при создании заказа: " + ex.Message);
+            }
+        }
+
+
+        // Метод для генерации уникального кода заказа
+        private int GenerateOrderGetCode()
+        {
+            // Здесь может быть ваша логика генерации уникального кода
+            return new Random().Next(1000, 9999); // Пример: случайное число от 1000 до 9999
+        }
+
     }
 }

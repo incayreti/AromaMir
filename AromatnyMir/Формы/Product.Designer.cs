@@ -49,6 +49,7 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.panel2 = new System.Windows.Forms.Panel();
             this.totalAmountLabel = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
             this.cartCount = new System.Windows.Forms.Label();
             this.UserName = new System.Windows.Forms.Label();
             this.Count = new System.Windows.Forms.Label();
@@ -63,7 +64,7 @@
             this.ProductPriceColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.QuantityColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.button3 = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.aromaMirDataSet)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.productBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.productDataGridView)).BeginInit();
@@ -231,6 +232,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panel2.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.panel2.Controls.Add(this.label3);
             this.panel2.Controls.Add(this.totalAmountLabel);
             this.panel2.Controls.Add(this.label1);
             this.panel2.Controls.Add(this.cartCount);
@@ -253,6 +255,15 @@
             this.totalAmountLabel.TabIndex = 5;
             this.totalAmountLabel.Text = "0";
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(249, 36);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(83, 15);
+            this.label1.TabIndex = 5;
+            this.label1.Text = "Общая сумма:";
+            // 
             // cartCount
             // 
             this.cartCount.AutoSize = true;
@@ -265,7 +276,7 @@
             // UserName
             // 
             this.UserName.AutoSize = true;
-            this.UserName.Location = new System.Drawing.Point(146, 21);
+            this.UserName.Location = new System.Drawing.Point(238, 21);
             this.UserName.Name = "UserName";
             this.UserName.Size = new System.Drawing.Size(60, 15);
             this.UserName.TabIndex = 3;
@@ -337,11 +348,9 @@
             this.comboBox1.Font = new System.Drawing.Font("Comic Sans MS", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.comboBox1.FormattingEnabled = true;
             this.comboBox1.Items.AddRange(new object[] {
-            "Г.Ангарск, ул.Подгорная, 7",
-            "Г.Ангарск, ул.Партизанская, 48",
-            "Г.Ангарск, ул.Шоссейная, 39",
-            "Г.Ангарск, ул.Мичурина, 25",
-            "Г.Ангарск, ул.Фрунзе, 42"});
+            "6 Фрунзе 42",
+            "7 Коммунистическая 42",
+            "11 Светлая 45"});
             this.comboBox1.Location = new System.Drawing.Point(92, 381);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(167, 23);
@@ -401,14 +410,14 @@
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
-            // label1
+            // label3
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(249, 36);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(83, 15);
-            this.label1.TabIndex = 5;
-            this.label1.Text = "Общая сумма:";
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(146, 21);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(86, 15);
+            this.label3.TabIndex = 6;
+            this.label3.Text = "Пользователь:";
             // 
             // Product
             // 
@@ -473,5 +482,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn QuantityColumn;
         private System.Windows.Forms.Label cartCount;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label3;
     }
 }
